@@ -1,0 +1,144 @@
+groups:
+  - name: customer-signal-alerts
+    rules:
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for {{ $labels.instance }}"
+
+      # High response time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s for {{ $labels.instance }}"
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}% for {{ $labels.instance }}"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value | humanizePercentage }} for {{ $labels.instance }}"
+
+      # Database connection pool exhaustion
+      - alert: DatabaseConnectionPoolExhaustion
+        expr: db_connections_active / db_connections_max > 0.9
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection pool near exhaustion"
+          description: "Database connection pool is {{ $value | humanizePercentage }} full for {{ $labels.instance }}"
+
+      # Cache hit rate too low
+      - alert: LowCacheHitRate
+        expr: cache_hits_total / (cache_hits_total + cache_misses_total) < 0.7
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} for {{ $labels.instance }}"
+
+      # Queue size growing
+      - alert: QueueSizeGrowing
+        expr: increase(queue_size[10m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue size growing rapidly"
+          description: "Queue size increased by {{ $value }} in the last 10 minutes for {{ $labels.instance }}"
+
+      # Disk space low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk space low"
+          description: "Disk space is {{ $value | humanizePercentage }} full for {{ $labels.instance }}"
+
+      # Service down
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service is down"
+          description: "{{ $labels.instance }} has been down for more than 1 minute"
+
+      # Database slow queries
+      - alert: DatabaseSlowQueries
+        expr: rate(db_query_duration_seconds_sum[5m]) / rate(db_query_duration_seconds_count[5m]) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database queries are slow"
+          description: "Average query time is {{ $value }}s for {{ $labels.instance }}"
+
+  - name: business-metrics-alerts
+    rules:
+      # Monitoring pipeline failures
+      - alert: MonitoringPipelineFailures
+        expr: rate(monitoring_pipeline_failures_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High monitoring pipeline failure rate"
+          description: "Monitoring pipeline failure rate is {{ $value }} per second"
+
+      # Sentiment analysis failures
+      - alert: SentimentAnalysisFailures
+        expr: rate(sentiment_analysis_failures_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High sentiment analysis failure rate"
+          description: "Sentiment analysis failure rate is {{ $value }} per second"
+
+      # Data integration sync failures
+      - alert: DataIntegrationSyncFailures
+        expr: rate(data_integration_sync_failures_total[1h]) > 0.01
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Data integration sync failures"
+          description: "Data integration sync failure rate is {{ $value }} per hour"
+
+      # Alert delivery failures
+      - alert: AlertDeliveryFailures
+        expr: rate(alert_delivery_failures_total[5m]) > 0.02
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Alert delivery failures"
+          description: "Alert delivery failure rate is {{ $value }} per second"

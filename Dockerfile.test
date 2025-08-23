@@ -1,0 +1,16 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
+
+# Install Playwright browsers
+RUN npx playwright install --with-deps
+
+# Copy source code
+COPY . .
+
+# Run tests
+CMD ["npm", "run", "test:all"]

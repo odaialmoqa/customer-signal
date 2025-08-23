@@ -1,0 +1,353 @@
+# Production Monitoring and Alerting Configuration
+# This file defines monitoring rules and alert thresholds for CustomerSignal production environment
+
+# =============================================================================
+# DATABASE MONITORING
+# =============================================================================
+
+database_alerts:
+  # Connection pool monitoring
+  connection_pool_exhaustion:
+    metric: "database_connections_active"
+    threshold: 80  # Percentage of max connections
+    severity: "critical"
+    description: "Database connection pool is near exhaustion"
+    action: "Scale database or optimize connection usage"
+    
+  slow_queries:
+    metric: "database_query_duration_p95"
+    threshold: 1000  # milliseconds
+    severity: "warning"
+    description: "Database queries are running slowly"
+    action: "Review and optimize slow queries"
+    
+  database_errors:
+    metric: "database_error_rate"
+    threshold: 1  # Percentage
+    severity: "critical"
+    description: "High database error rate detected"
+    action: "Investigate database issues immediately"
+    
+  storage_usage:
+    metric: "database_storage_usage"
+    threshold: 85  # Percentage of allocated storage
+    severity: "warning"
+    description: "Database storage usage is high"
+    action: "Plan for storage expansion or data archiving"
+
+# =============================================================================
+# EDGE FUNCTIONS MONITORING
+# =============================================================================
+
+edge_functions_alerts:
+  function_errors:
+    metric: "edge_function_error_rate"
+    threshold: 5  # Percentage
+    severity: "critical"
+    description: "High error rate in Edge Functions"
+    action: "Check function logs and fix issues"
+    
+  function_timeouts:
+    metric: "edge_function_timeout_rate"
+    threshold: 2  # Percentage
+    severity: "warning"
+    description: "Edge Functions are timing out frequently"
+    action: "Optimize function performance or increase timeout limits"
+    
+  function_duration:
+    metric: "edge_function_duration_p95"
+    threshold: 5000  # milliseconds
+    severity: "warning"
+    description: "Edge Functions are taking too long to execute"
+    action: "Optimize function code and dependencies"
+    
+  function_memory:
+    metric: "edge_function_memory_usage"
+    threshold: 90  # Percentage of allocated memory
+    severity: "warning"
+    description: "Edge Functions are using high memory"
+    action: "Optimize memory usage or increase limits"
+
+# =============================================================================
+# API MONITORING
+# =============================================================================
+
+api_alerts:
+  response_time:
+    metric: "api_response_time_p95"
+    threshold: 2000  # milliseconds
+    severity: "warning"
+    description: "API response times are degraded"
+    action: "Investigate performance bottlenecks"
+    
+  error_rate:
+    metric: "api_error_rate"
+    threshold: 1  # Percentage
+    severity: "critical"
+    description: "High API error rate detected"
+    action: "Investigate and fix API issues"
+    
+  request_volume:
+    metric: "api_request_volume"
+    threshold: 10000  # requests per minute
+    severity: "info"
+    description: "High API request volume detected"
+    action: "Monitor for potential DDoS or unusual usage patterns"
+    
+  authentication_failures:
+    metric: "auth_failure_rate"
+    threshold: 5  # Percentage
+    severity: "warning"
+    description: "High authentication failure rate"
+    action: "Check for brute force attacks or configuration issues"
+
+# =============================================================================
+# STORAGE MONITORING
+# =============================================================================
+
+storage_alerts:
+  storage_usage:
+    metric: "storage_usage_percentage"
+    threshold: 80  # Percentage
+    severity: "warning"
+    description: "Storage usage is high"
+    action: "Plan for storage expansion or cleanup"
+    
+  upload_errors:
+    metric: "storage_upload_error_rate"
+    threshold: 2  # Percentage
+    severity: "warning"
+    description: "High file upload error rate"
+    action: "Check storage service health and permissions"
+    
+  bandwidth_usage:
+    metric: "storage_bandwidth_usage"
+    threshold: 1000  # GB per day
+    severity: "info"
+    description: "High storage bandwidth usage"
+    action: "Monitor for unusual download patterns"
+
+# =============================================================================
+# AUTHENTICATION MONITORING
+# =============================================================================
+
+auth_alerts:
+  login_failures:
+    metric: "auth_login_failure_rate"
+    threshold: 10  # Percentage
+    severity: "warning"
+    description: "High login failure rate"
+    action: "Check for brute force attacks or user issues"
+    
+  token_errors:
+    metric: "auth_token_error_rate"
+    threshold: 2  # Percentage
+    severity: "warning"
+    description: "High JWT token error rate"
+    action: "Check token configuration and expiration settings"
+    
+  suspicious_activity:
+    metric: "auth_suspicious_activity_count"
+    threshold: 100  # events per hour
+    severity: "critical"
+    description: "Suspicious authentication activity detected"
+    action: "Investigate potential security threats"
+
+# =============================================================================
+# BUSINESS METRICS MONITORING
+# =============================================================================
+
+business_alerts:
+  monitoring_failures:
+    metric: "keyword_monitoring_failure_rate"
+    threshold: 5  # Percentage
+    severity: "warning"
+    description: "Keyword monitoring is failing frequently"
+    action: "Check external API connectivity and rate limits"
+    
+  sentiment_analysis_errors:
+    metric: "sentiment_analysis_error_rate"
+    threshold: 3  # Percentage
+    severity: "warning"
+    description: "Sentiment analysis is failing"
+    action: "Check ML service health and API keys"
+    
+  data_processing_delays:
+    metric: "data_processing_delay_minutes"
+    threshold: 30  # minutes
+    severity: "warning"
+    description: "Data processing is delayed"
+    action: "Check processing pipeline and queue health"
+    
+  alert_delivery_failures:
+    metric: "alert_delivery_failure_rate"
+    threshold: 2  # Percentage
+    severity: "critical"
+    description: "User alerts are not being delivered"
+    action: "Check email service and notification system"
+
+# =============================================================================
+# INFRASTRUCTURE MONITORING
+# =============================================================================
+
+infrastructure_alerts:
+  cpu_usage:
+    metric: "cpu_usage_percentage"
+    threshold: 80  # Percentage
+    severity: "warning"
+    description: "High CPU usage detected"
+    action: "Scale resources or optimize performance"
+    
+  memory_usage:
+    metric: "memory_usage_percentage"
+    threshold: 85  # Percentage
+    severity: "warning"
+    description: "High memory usage detected"
+    action: "Scale resources or optimize memory usage"
+    
+  disk_usage:
+    metric: "disk_usage_percentage"
+    threshold: 90  # Percentage
+    severity: "critical"
+    description: "High disk usage detected"
+    action: "Clean up disk space or expand storage"
+    
+  network_errors:
+    metric: "network_error_rate"
+    threshold: 1  # Percentage
+    severity: "warning"
+    description: "Network errors detected"
+    action: "Check network connectivity and configuration"
+
+# =============================================================================
+# EXTERNAL DEPENDENCIES MONITORING
+# =============================================================================
+
+external_dependencies_alerts:
+  api_rate_limits:
+    metric: "external_api_rate_limit_hit_count"
+    threshold: 10  # hits per hour
+    severity: "warning"
+    description: "External API rate limits are being hit"
+    action: "Optimize API usage or upgrade API plans"
+    
+  api_downtime:
+    metric: "external_api_availability"
+    threshold: 95  # Percentage uptime
+    severity: "warning"
+    description: "External API availability is low"
+    action: "Check external service status and implement fallbacks"
+    
+  webhook_failures:
+    metric: "webhook_failure_rate"
+    threshold: 5  # Percentage
+    severity: "warning"
+    description: "Webhook deliveries are failing"
+    action: "Check webhook endpoints and retry logic"
+
+# =============================================================================
+# ALERT ROUTING CONFIGURATION
+# =============================================================================
+
+alert_routing:
+  critical:
+    channels:
+      - "pagerduty"
+      - "slack-critical"
+      - "email-oncall"
+    escalation_time: 15  # minutes
+    
+  warning:
+    channels:
+      - "slack-alerts"
+      - "email-team"
+    escalation_time: 60  # minutes
+    
+  info:
+    channels:
+      - "slack-info"
+    escalation_time: 240  # minutes
+
+# =============================================================================
+# NOTIFICATION TEMPLATES
+# =============================================================================
+
+notification_templates:
+  critical:
+    title: "🚨 CRITICAL: {{ alert_name }}"
+    message: |
+      **Alert**: {{ alert_name }}
+      **Severity**: {{ severity }}
+      **Description**: {{ description }}
+      **Current Value**: {{ current_value }}
+      **Threshold**: {{ threshold }}
+      **Action Required**: {{ action }}
+      **Time**: {{ timestamp }}
+      **Dashboard**: {{ dashboard_url }}
+      
+  warning:
+    title: "⚠️ WARNING: {{ alert_name }}"
+    message: |
+      **Alert**: {{ alert_name }}
+      **Severity**: {{ severity }}
+      **Description**: {{ description }}
+      **Current Value**: {{ current_value }}
+      **Threshold**: {{ threshold }}
+      **Recommended Action**: {{ action }}
+      **Time**: {{ timestamp }}
+      
+  info:
+    title: "ℹ️ INFO: {{ alert_name }}"
+    message: |
+      **Alert**: {{ alert_name }}
+      **Description**: {{ description }}
+      **Current Value**: {{ current_value }}
+      **Time**: {{ timestamp }}
+
+# =============================================================================
+# DASHBOARD CONFIGURATION
+# =============================================================================
+
+dashboards:
+  production_overview:
+    url: "https://your-monitoring-dashboard.com/production"
+    metrics:
+      - "api_response_time"
+      - "database_connections"
+      - "edge_function_errors"
+      - "storage_usage"
+      
+  database_health:
+    url: "https://your-monitoring-dashboard.com/database"
+    metrics:
+      - "database_query_duration"
+      - "database_connections"
+      - "database_storage_usage"
+      - "database_error_rate"
+      
+  application_performance:
+    url: "https://your-monitoring-dashboard.com/performance"
+    metrics:
+      - "api_response_time"
+      - "edge_function_duration"
+      - "error_rates"
+      - "request_volume"
+
+# =============================================================================
+# MAINTENANCE WINDOWS
+# =============================================================================
+
+maintenance_windows:
+  weekly:
+    day: "sunday"
+    start_time: "02:00"
+    end_time: "04:00"
+    timezone: "UTC"
+    suppress_alerts: true
+    
+  monthly:
+    day: "first_sunday"
+    start_time: "01:00"
+    end_time: "05:00"
+    timezone: "UTC"
+    suppress_alerts: true
