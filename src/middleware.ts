@@ -1,8 +1,34 @@
 import { updateSession } from '@/lib/supabase/middleware'
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { withRequestMonitoring, withRateLimit } from './lib/middleware/request-monitor'
 
 async function baseMiddleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Allow public routes without authentication
+  const publicRoutes = [
+    '/',
+    '/public',
+    '/auth-test',
+    '/demo',
+    '/help',
+    '/api/health',
+    '/login',
+    '/signup',
+    '/auth/callback'
+  ]
+
+  // Check if the current path is a public route
+  const isPublicRoute = publicRoutes.some(route => 
+    pathname === route || pathname.startsWith(route + '/')
+  )
+
+  // For public routes, just continue without auth check
+  if (isPublicRoute) {
+    return NextResponse.next()
+  }
+
+  // For protected routes, check authentication
   return await updateSession(request)
 }
 

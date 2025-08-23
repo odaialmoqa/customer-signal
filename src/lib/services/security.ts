@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../types/database';
-import { logger } from '../utils/logger-server';
+import { serverLogger } from '../utils/logger-server';
 
 type SecurityEvent = Database['public']['Tables']['security_events']['Insert'];
 type AuditLog = Database['public']['Tables']['audit_logs']['Row'];

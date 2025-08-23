@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { securityService } from '../services/security';
-import { logger } from '../utils/logger-server';
+import { serverLogger as logger } from '../utils/logger-server';
 
 export interface SecurityMiddlewareOptions {
   enableAuditLogging?: boolean;

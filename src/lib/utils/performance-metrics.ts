@@ -321,13 +321,13 @@ export class PerformanceMetrics {
 }
 
 // Singleton instance
-let metrics: PerformanceMetrics | null = null;
+let metricsInstance: PerformanceMetrics | null = null;
 
 export function getMetrics(): PerformanceMetrics {
-  if (!metrics) {
-    metrics = new PerformanceMetrics();
+  if (!metricsInstance) {
+    metricsInstance = new PerformanceMetrics();
   }
-  return metrics;
+  return metricsInstance;
 }
 
 // Export singleton for convenience

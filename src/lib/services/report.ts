@@ -16,11 +16,14 @@ import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 
 export class ReportService {
-  private supabase = createClient()
+  private async getSupabase() {
+    return createClient()
+  }
 
   // Report Configuration Management
   async createReportConfig(config: Omit<ReportConfig, 'id' | 'createdAt' | 'updatedAt'>): Promise<ReportConfig> {
-    const { data, error } = await this.supabase
+    const supabase = await this.getSupabase()
+    const { data, error } = await supabase
       .from('report_configs')
       .insert({
         ...config,
@@ -35,7 +38,8 @@ export class ReportService {
   }
 
   async getReportConfigs(tenantId: string): Promise<ReportConfig[]> {
-    const { data, error } = await this.supabase
+    const supabase = await this.getSupabase()
+    const { data, error } = await supabase
       .from('report_configs')
       .select('*')
       .eq('tenant_id', tenantId)

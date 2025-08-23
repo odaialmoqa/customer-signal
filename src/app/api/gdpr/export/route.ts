@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { securityService } from '@/lib/services/security';
-import { logger } from '@/lib/utils/logger-server';
+import { serverLogger } from '@/lib/utils/logger-server';
 
 export async function POST(request: NextRequest) {
   try {
