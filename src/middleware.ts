@@ -42,12 +42,11 @@ export const middleware = withRateLimit()(withRequestMonitoring(baseMiddleware))
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public routes (exclude from middleware)
+     * Temporarily disable middleware for debugging
+     * Only match very specific protected routes
      */
-    '/((?!_next/static|_next/image|favicon.ico|public|api/health|index.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/dashboard/:path*',
+    '/settings/:path*',
+    '/analytics/:path*',
   ],
 }
