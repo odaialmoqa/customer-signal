@@ -27,6 +27,7 @@ async function baseMiddleware(request: NextRequest) {
   // For public routes, just continue without auth check
   if (isPublicRoute) {
     console.log(`Public route accessed: ${pathname}`)
+    // Create a simple response that bypasses all auth
     return NextResponse.next()
   }
 
@@ -45,8 +46,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - public routes (exclude from middleware)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public|api/health|index.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
