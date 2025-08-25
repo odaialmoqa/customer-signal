@@ -32,8 +32,7 @@ export async function POST(request: NextRequest) {
     const { data: tenant, error: tenantError } = await supabase
       .from('tenants')
       .insert({
-        name: name.trim(),
-        created_by: user.id
+        name: name.trim()
       })
       .select()
       .single()
