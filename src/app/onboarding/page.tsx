@@ -20,6 +20,9 @@ function OnboardingContent() {
 
   useEffect(() => {
     const checkUserStatus = async () => {
+      // Skip if we're already in complete step
+      if (step === 'complete') return
+      
       // Check if user is authenticated
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
@@ -44,7 +47,7 @@ function OnboardingContent() {
     }
 
     checkUserStatus()
-  }, [profile, tenant, invitationId, router, refreshData, supabase.auth])
+  }, [profile, tenant, invitationId, router, refreshData, supabase.auth, step])
 
   const handleCreateTenant = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,10 +57,19 @@ function OnboardingContent() {
     setError(null)
 
     try {
-      await createTenant(companyName.trim())
+      const result = await createTenant(companyName.trim())
+      console.log('Tenant created successfully:', result)
+      
+      // Show success message briefly then redirect
       setStep('complete')
-      setTimeout(() => router.push('/dashboard'), 2000)
+      
+      // Redirect to dashboard after showing success
+      setTimeout(() => {
+        console.log('Redirecting to dashboard...')
+        router.push('/dashboard')
+      }, 1500)
     } catch (err) {
+      console.error('Tenant creation failed:', err)
       setError(err instanceof Error ? err.message : 'Failed to create company')
     } finally {
       setLoading(false)
