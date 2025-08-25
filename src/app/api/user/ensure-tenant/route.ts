@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { ensureUserTenantAssociationServer } from '@/lib/services/tenant-auto-creation'
 
 export async function POST(request: NextRequest) {

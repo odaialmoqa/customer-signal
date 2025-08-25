@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import { createServerClient } from '@/lib/supabase/server'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 
 export interface TenantCreationResult {
   success: boolean

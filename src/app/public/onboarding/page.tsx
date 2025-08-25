@@ -24,26 +24,10 @@ export default function PublicOnboarding() {
   ]
 
   useEffect(() => {
-    checkUser()
+    // For public onboarding, we'll skip auth check and allow demo mode
+    setLoading(false)
+    setUser({ id: 'demo-user', email: 'demo@example.com' }) // Demo user for public onboarding
   }, [])
-
-  const checkUser = async () => {
-    try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      
-      if (userError || !user) {
-        router.push('/public/auth/login')
-        return
-      }
-
-      setUser(user)
-    } catch (err) {
-      console.error('Check user error:', err)
-      setError('An unexpected error occurred')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handlePlatformToggle = (platformId: string) => {
     setPlatforms(prev => 

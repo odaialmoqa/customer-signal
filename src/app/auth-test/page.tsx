@@ -1,5 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 
+// Force dynamic rendering since we use cookies
+export const dynamic = 'force-dynamic'
+
 export default async function AuthTest() {
   const supabase = createClient()
   

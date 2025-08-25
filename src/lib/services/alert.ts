@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import { createServerClient } from '@/lib/supabase/server'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 import type { Database } from '@/lib/types/database'
 
 type AlertConfiguration = Database['public']['Tables']['alert_configurations']['Row']

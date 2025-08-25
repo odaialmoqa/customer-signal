@@ -11,15 +11,46 @@ interface AuthFormProps {
 export default function SimpleAuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({})
   const router = useRouter()
   const supabase = createClient()
 
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {}
+    
+    if (!email) {
+      errors.email = 'Email is required'
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = 'Please enter a valid email address'
+    }
+    
+    if (!password) {
+      errors.password = 'Password is required'
+    } else if (password.length < 6) {
+      errors.password = 'Password must be at least 6 characters'
+    }
+    
+    if (mode === 'signup' && !name.trim()) {
+      errors.name = 'Name is required'
+    }
+    
+    setValidationErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!validateForm()) {
+      return
+    }
+    
     setLoading(true)
     setError(null)
+    setValidationErrors({})
 
     try {
       if (mode === 'signup') {
@@ -28,6 +59,9 @@ export default function SimpleAuthForm({ mode }: AuthFormProps) {
           password,
           options: {
             emailRedirectTo: `${location.origin}/auth/callback`,
+            data: {
+              name: name.trim()
+            }
           },
         })
         if (error) throw error
@@ -54,6 +88,26 @@ export default function SimpleAuthForm({ mode }: AuthFormProps) {
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
+        {mode === 'signup' && (
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Full Name
+            </label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                validationErrors.name ? 'border-red-300' : 'border-gray-300'
+              }`}
+            />
+            {validationErrors.name && (
+              <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
+            )}
+          </div>
+        )}
+        
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">
             Email
@@ -63,9 +117,13 @@ export default function SimpleAuthForm({ mode }: AuthFormProps) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+              validationErrors.email ? 'border-red-300' : 'border-gray-300'
+            }`}
           />
+          {validationErrors.email && (
+            <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+          )}
         </div>
         
         <div>
@@ -77,19 +135,25 @@ export default function SimpleAuthForm({ mode }: AuthFormProps) {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+              validationErrors.password ? 'border-red-300' : 'border-gray-300'
+            }`}
           />
+          {validationErrors.password && (
+            <p className="mt-1 text-sm text-red-600">{validationErrors.password}</p>
+          )}
         </div>
         
         {error && (
-          <div className="text-red-600 text-sm">{error}</div>
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+            {error}
+          </div>
         )}
         
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 min-h-[44px]"
         >
           {loading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
         </button>
