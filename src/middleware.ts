@@ -15,7 +15,8 @@ async function baseMiddleware(request: NextRequest) {
     '/api/health',
     '/login',
     '/signup',
-    '/auth/callback'
+    '/auth/callback',
+    '/index.html'
   ]
 
   // Check if the current path is a public route
@@ -25,9 +26,11 @@ async function baseMiddleware(request: NextRequest) {
 
   // For public routes, just continue without auth check
   if (isPublicRoute) {
+    console.log(`Public route accessed: ${pathname}`)
     return NextResponse.next()
   }
 
+  console.log(`Protected route accessed: ${pathname}`)
   // For protected routes, check authentication
   return await updateSession(request)
 }
