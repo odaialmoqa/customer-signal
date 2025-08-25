@@ -54,7 +54,7 @@ export default function SimpleAuthForm({ mode }: AuthFormProps) {
 
     try {
       if (mode === 'signup') {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -65,14 +65,34 @@ export default function SimpleAuthForm({ mode }: AuthFormProps) {
           },
         })
         if (error) throw error
-        alert('Check your email for the confirmation link!')
+        
+        if (data.user && !data.user.email_confirmed_at) {
+          alert('Check your email for the confirmation link!')
+        } else if (data.user) {
+          // User is immediately confirmed, redirect to onboarding
+          router.push('/onboarding')
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
         if (error) throw error
-        router.push('/dashboard')
+        
+        // Check if user has a tenant
+        try {
+          const response = await fetch('/api/user/tenant-status')
+          const tenantStatus = await response.json()
+          
+          if (tenantStatus.needs_onboarding) {
+            router.push('/onboarding')
+          } else {
+            router.push('/dashboard')
+          }
+        } catch {
+          // Fallback to dashboard if tenant check fails
+          router.push('/dashboard')
+        }
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred')

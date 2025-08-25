@@ -18,75 +18,71 @@ export class TenantService {
    * Create a new tenant and associate the current user as owner
    */
   async createTenant(request: CreateTenantRequest): Promise<{ tenant: Tenant; profile: UserProfile }> {
-    const { data: { user } } = await this.supabase.auth.getUser()
-    if (!user) throw new Error('User not authenticated')
+    const response = await fetch('/api/tenant/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: request.name }),
+    })
 
-    // Start a transaction
-    const { data: tenant, error: tenantError } = await this.supabase
-      .from('tenants')
-      .insert({
-        name: request.name,
-        subscription: request.subscription || 'free'
-      })
-      .select()
-      .single()
-
-    if (tenantError) throw tenantError
-
-    // Create user profile as owner
-    const { data: profile, error: profileError } = await this.supabase
-      .from('user_profiles')
-      .insert({
-        id: user.id,
-        tenant_id: tenant.id,
-        email: user.email!,
-        full_name: user.user_metadata?.full_name,
-        role: 'owner'
-      })
-      .select()
-      .single()
-
-    if (profileError) {
-      // Rollback tenant creation if profile creation fails
-      await this.supabase.from('tenants').delete().eq('id', tenant.id)
-      throw profileError
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to create tenant')
     }
 
-    return { tenant, profile }
+    const result = await response.json()
+    
+    // Get updated profile data
+    const profile = await this.getCurrentUserProfile()
+    
+    return { tenant: result.tenant, profile: profile! }
   }
 
   /**
    * Get current user's tenant
    */
   async getCurrentTenant(): Promise<Tenant | null> {
-    const { data: profile } = await this.getCurrentUserProfile()
-    if (!profile) return null
+    try {
+      const response = await fetch('/api/tenant/current')
+      
+      if (response.status === 404) {
+        return null // No tenant found
+      }
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch tenant')
+      }
 
-    const { data: tenant, error } = await this.supabase
-      .from('tenants')
-      .select('*')
-      .eq('id', profile.tenant_id)
-      .single()
-
-    if (error) throw error
-    return tenant
+      const result = await response.json()
+      return result.tenant
+    } catch (error) {
+      console.error('Error fetching current tenant:', error)
+      return null
+    }
   }
 
   /**
    * Get current user's profile
    */
   async getCurrentUserProfile(): Promise<UserProfile | null> {
-    const { data: { user } } = await this.supabase.auth.getUser()
-    if (!user) return null
+    try {
+      const response = await fetch('/api/user/profile')
+      
+      if (response.status === 401) {
+        return null // Not authenticated
+      }
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile')
+      }
 
-    const { data: profile, error } = await this.supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
-
-    if (error && error.code !== 'PGRST116') throw error // PGRST116 = no rows returned
-    return profile
+      const profile = await response.json()
+      return profile
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+      return null
+    }
   }
 
   /**
