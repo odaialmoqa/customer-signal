@@ -12,8 +12,7 @@ CREATE TABLE IF NOT EXISTS tenants (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     
     -- Constraints
-    CONSTRAINT tenants_name_length CHECK (char_length(name) >= 1 AND char_length(name) <= 100),
-    CONSTRAINT tenants_slug_format CHECK (slug ~ '^[a-z0-9-]+$')
+    CONSTRAINT tenants_name_length CHECK (char_length(name) >= 1 AND char_length(name) <= 100)$')
 );
 
 -- Create user_profiles table
@@ -29,7 +28,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     
     -- Constraints
     CONSTRAINT user_profiles_role_check CHECK (role IN ('owner', 'admin', 'member')),
-    CONSTRAINT user_profiles_email_format CHECK (email ~ '^[^@]+@[^@]+\.[^@]+$'),
+    CONSTRAINT user_profiles_email_format CHECK (email ~ '^[^@]+@[^@]+\.[^@]+$'),$'),
     CONSTRAINT user_profiles_name_length CHECK (char_length(name) >= 1 AND char_length(name) <= 100)
 );
 
@@ -126,7 +125,7 @@ CREATE INDEX IF NOT EXISTS idx_tenant_users_role ON tenant_users(role);
 
 -- Create function to generate tenant slug
 CREATE OR REPLACE FUNCTION generate_tenant_slug(tenant_name TEXT)
-RETURNS TEXT AS $
+RETURNS TEXT AS $$
 DECLARE
     base_slug TEXT;
     final_slug TEXT;
@@ -134,7 +133,7 @@ DECLARE
 BEGIN
     -- Convert name to slug format
     base_slug := lower(regexp_replace(trim(tenant_name), '[^a-zA-Z0-9]+', '-', 'g'));
-    base_slug := regexp_replace(base_slug, '^-+|-+$', '', 'g');
+    base_slug := regexp_replace(base_slug, '^-+|-+$', '', 'g');$', '', 'g');
     
     -- Ensure slug is not empty
     IF base_slug = '' THEN
@@ -150,18 +149,18 @@ BEGIN
     
     RETURN final_slug;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- Create function to automatically create tenant slug
 CREATE OR REPLACE FUNCTION set_tenant_slug()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.slug IS NULL THEN
         NEW.slug := generate_tenant_slug(NEW.name);
     END IF;
     RETURN NEW;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- Create trigger to set tenant slug
 CREATE TRIGGER trigger_set_tenant_slug
@@ -170,12 +169,12 @@ CREATE TRIGGER trigger_set_tenant_slug
 
 -- Create function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = NOW();
     RETURN NEW;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- Create triggers for updated_at columns
 CREATE TRIGGER trigger_tenants_updated_at
@@ -192,7 +191,7 @@ CREATE TRIGGER trigger_tenant_users_updated_at
 
 -- Create function to automatically create tenant-user relationship
 CREATE OR REPLACE FUNCTION create_tenant_user_relationship()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 BEGIN
     -- Create tenant_users entry when user_profile is created
     INSERT INTO tenant_users (tenant_id, user_id, role)
@@ -203,7 +202,7 @@ BEGIN
     
     RETURN NEW;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- Create trigger to maintain tenant_users relationship
 CREATE TRIGGER trigger_create_tenant_user_relationship

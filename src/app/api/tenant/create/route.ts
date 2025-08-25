@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
     const { data: tenant, error: tenantError } = await supabase
       .from('tenants')
       .insert({
-        name: name.trim()
+        name: name.trim(),
+        created_by: user.id
       })
       .select()
       .single()
@@ -48,7 +49,12 @@ export async function POST(request: NextRequest) {
         }, { status: 500 })
       }
       
-      return NextResponse.json({ error: 'Failed to create tenant' }, { status: 500 })
+      // Return more detailed error information
+      return NextResponse.json({ 
+        error: 'Failed to create tenant',
+        details: tenantError.message,
+        code: tenantError.code
+      }, { status: 500 })
     }
 
     // Update user profile with tenant_id
@@ -78,7 +84,11 @@ export async function POST(request: NextRequest) {
       
       // Try to clean up the tenant if profile update fails
       await supabase.from('tenants').delete().eq('id', tenant.id)
-      return NextResponse.json({ error: 'Failed to associate user with tenant' }, { status: 500 })
+      return NextResponse.json({ 
+        error: 'Failed to associate user with tenant',
+        details: profileError.message,
+        code: profileError.code
+      }, { status: 500 })
     }
 
     return NextResponse.json({
