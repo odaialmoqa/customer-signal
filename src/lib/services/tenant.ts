@@ -18,6 +18,8 @@ export class TenantService {
    * Create a new tenant and associate the current user as owner
    */
   async createTenant(request: CreateTenantRequest): Promise<{ tenant: Tenant; profile: UserProfile }> {
+    console.log('Creating tenant with name:', request.name)
+    
     const response = await fetch('/api/tenant/create', {
       method: 'POST',
       headers: {
@@ -26,12 +28,17 @@ export class TenantService {
       body: JSON.stringify({ name: request.name }),
     })
 
+    console.log('Response status:', response.status)
+    console.log('Response ok:', response.ok)
+
     if (!response.ok) {
-      const error = await response.json()
+      const error = await response.json().catch(() => ({ error: 'Unknown error' }))
+      console.error('Tenant creation error:', error)
       throw new Error(error.error || 'Failed to create tenant')
     }
 
     const result = await response.json()
+    console.log('Tenant creation result:', result)
     
     // Get updated profile data
     const profile = await this.getCurrentUserProfile()
